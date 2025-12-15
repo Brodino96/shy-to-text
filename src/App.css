@@ -343,6 +343,50 @@ button:disabled:hover {
 	margin-top: 8px;
 }
 
+.setting-label {
+	font-size: 0.85rem;
+	color: var(--muted-text);
+	font-weight: 500;
+}
+
+.hotkey-recorder {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.hotkey-display {
+	flex: 1;
+	padding: 10px 12px;
+	border: 1px solid var(--input-border);
+	border-radius: 8px;
+	font-size: 0.95rem;
+	background-color: var(--input-bg);
+	color: var(--text-color);
+	font-family: monospace;
+}
+
+.hotkey-display.recording {
+	border-color: #1976d2;
+	background-color: var(--input-focus-bg);
+	color: var(--muted-text);
+	font-style: italic;
+	font-family: inherit;
+}
+
+.hotkey-recorder button {
+	padding: 10px 16px;
+	white-space: nowrap;
+}
+
+.hotkey-recorder button.recording {
+	background: #c62828;
+}
+
+.hotkey-recorder button.recording:hover {
+	background: #b71c1c;
+}
+
 .error-message {
 	padding: 12px;
 	background-color: #ffebee;
