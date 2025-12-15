@@ -47,8 +47,10 @@ function App() {
 		)
 	const openModelUrlWrapper = () => openModelUrl()
 	const saveConfigWrapper = async (newConfig: Config) => {
-		await saveConfig(newConfig, setError)
-		setConfig(newConfig)
+		const success = await saveConfig(newConfig, setError)
+		if (success) {
+			setConfig(newConfig)
+		}
 	}
 
 	return (

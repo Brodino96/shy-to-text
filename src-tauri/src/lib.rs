@@ -33,10 +33,19 @@ fn get_config(state: tauri::State<Arc<AppStateManager>>) -> Config {
 
 #[tauri::command]
 fn save_config(
+	app: AppHandle,
 	state: tauri::State<Arc<AppStateManager>>,
 	config: Config,
 ) -> Result<(), String> {
-	state.update_config(config).map_err(|e| e.to_string())
+	let old_config = state.get_config();
+	state.update_config(config.clone()).map_err(|e| e.to_string())?;
+
+	if old_config.hotkey != config.hotkey {
+		let _ = app.global_shortcut().unregister_all();
+		setup_global_shortcut(&app, &config.hotkey)?;
+	}
+
+	Ok(())
 }
 
 #[tauri::command]
