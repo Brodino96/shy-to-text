@@ -16,6 +16,8 @@
 				"title": "Shy to Text",
 				"width": 500,
 				"height": 600,
+				"minWidth": 500,
+				"minHeight": 500,
 				"resizable": true,
 				"center": true,
 				"visible": true
