@@ -1,6 +1,5 @@
 mod audio;
 mod config;
-mod gpu;
 mod state;
 mod transcribe;
 
@@ -46,28 +45,6 @@ fn save_config(
 		setup_global_shortcut(&app, &config.hotkey)?;
 	}
 
-	// Handle GPU config change - reload model if needed
-	let gpu_changed =
-		old_config.use_gpu != config.use_gpu || old_config.gpu_device != config.gpu_device;
-
-	if gpu_changed && state.has_model() {
-		match state.reload_model() {
-			Ok(fell_back) => {
-				if fell_back {
-					show_notification(
-						&app,
-						"GPU Unavailable",
-						"Failed to use GPU acceleration, using CPU instead",
-					);
-					let _ = app.emit("gpu-fallback", ());
-				}
-			}
-			Err(e) => {
-				return Err(format!("Failed to reload model: {}", e));
-			}
-		}
-	}
-
 	Ok(())
 }
 
@@ -78,22 +55,10 @@ fn get_available_models() -> Result<Vec<ModelInfo>, String> {
 
 #[tauri::command]
 fn load_model(
-	app: AppHandle,
 	state: tauri::State<Arc<AppStateManager>>,
 	model_path: String,
 ) -> Result<(), String> {
-	let fell_back = state.load_model(&model_path).map_err(|e| e.to_string())?;
-
-	if fell_back {
-		show_notification(
-			&app,
-			"GPU Unavailable",
-			"Failed to use GPU acceleration, using CPU instead",
-		);
-		let _ = app.emit("gpu-fallback", ());
-	}
-
-	Ok(())
+	state.load_model(&model_path).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -131,11 +96,6 @@ fn get_input_devices() -> Result<Vec<String>, String> {
 #[tauri::command]
 fn get_supported_languages() -> Vec<LanguageInfo> {
 	transcribe::get_supported_languages()
-}
-
-#[tauri::command]
-fn get_gpu_devices() -> Vec<gpu::GpuDevice> {
-	gpu::get_gpu_devices()
 }
 
 fn toggle_recording(app: &AppHandle) {
@@ -435,7 +395,6 @@ pub fn run() {
 			get_models_directory,
 			get_input_devices,
 			get_supported_languages,
-			get_gpu_devices,
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");
