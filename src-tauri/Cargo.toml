@@ -1,0 +1,41 @@
+[package]
+name = "shy-to-text"
+version = "1.0.0" # Overridden in ./build.rs
+description = "A speech-to-text application using local Whisper AI models"
+authors = ["Brodino"]
+edition = "2024"
+
+[profile.release]
+lto = "fat"
+opt-level = 3
+
+[lib]
+name = "shy_to_text_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+serde_json = "1"
+tauri-build = { version = "2.5.3", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-opener = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+whisper-rs = "0.15"
+cpal = "0.16"
+hound = "3.5"
+dirs = "6"
+parking_lot = "0.12"
+tokio = { version = "1", features = ["sync", "rt-multi-thread"] }
+anyhow = "1"
+rubato = "0.16"
+
+[dev-dependencies]
+tempfile = "3"
+

@@ -1,0 +1,28 @@
+{
+	"name": "shy-to-text",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"tauri": "tauri"
+	},
+	"dependencies": {
+		"@tauri-apps/api": "^2.9.1",
+		"@tauri-apps/plugin-clipboard-manager": "^2.3.2",
+		"@tauri-apps/plugin-dialog": "^2.4.2",
+		"@tauri-apps/plugin-fs": "^2.4.4",
+		"@tauri-apps/plugin-notification": "^2.3.3",
+		"@tauri-apps/plugin-opener": "^2",
+		"preact": "^10.25.1"
+	},
+	"devDependencies": {
+		"@preact/preset-vite": "^2.9.3",
+		"typescript": "~5.6.2",
+		"vite": "^6.0.3",
+		"@tauri-apps/cli": "^2.9.6",
+		"@biomejs/biome": "^2.3.8"
+	}
+}

@@ -1,0 +1,38 @@
+{
+	"$schema": "../gen/schemas/desktop-schema.json",
+	"identifier": "default",
+	"description": "Capability for the main window",
+	"windows": ["main"],
+	"permissions": [
+		"core:default",
+		"core:event:default",
+		"core:event:allow-emit",
+		"core:event:allow-listen",
+		"opener:default",
+		"global-shortcut:default",
+		"global-shortcut:allow-register",
+		"global-shortcut:allow-unregister",
+		"notification:default",
+		"notification:allow-notify",
+		"notification:allow-request-permission",
+		"clipboard-manager:default",
+		"clipboard-manager:allow-write-text",
+		"clipboard-manager:allow-read-text",
+		"dialog:default",
+		"dialog:allow-open",
+		"fs:default",
+		"fs:allow-read-dir",
+		"fs:allow-read-file",
+		{
+			"identifier": "fs:scope",
+			"allow": [
+				{
+					"path": "$HOME/.config/shy-to-text/**"
+				},
+				{
+					"path": "$HOME/.config/shy-to-text"
+				}
+			]
+		}
+	]
+}
