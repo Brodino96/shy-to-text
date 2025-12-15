@@ -288,6 +288,20 @@ body {
 	font-size: 0.95rem;
 	background-color: var(--input-bg);
 	color: var(--text-color);
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+}
+
+.setting-row select {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.setting-row select option {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .setting-row input:focus,

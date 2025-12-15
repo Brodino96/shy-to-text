@@ -10,21 +10,50 @@ pub struct Transcriber {
 	is_multilingual: bool,
 }
 
+/// Result of loading a transcriber, includes whether GPU fallback occurred
+pub struct TranscriberLoadResult {
+	pub transcriber: Transcriber,
+	pub gpu_fallback: bool,
+}
+
 impl Transcriber {
-	pub fn new(model_path: &str) -> Result<Self> {
+	/// Creates a new Transcriber with GPU configuration.
+	/// Returns the transcriber and a flag indicating if GPU fallback to CPU occurred.
+	pub fn new(model_path: &str, use_gpu: bool, gpu_device: i32) -> Result<TranscriberLoadResult> {
 		let path = Path::new(model_path);
 		if !path.exists() {
 			anyhow::bail!("Model file not found: {}", model_path);
 		}
 
-		let ctx = WhisperContext::new_with_params(model_path, WhisperContextParameters::default())
-			.context("Failed to load Whisper model")?;
+		let mut params = WhisperContextParameters::default();
+		params.use_gpu(use_gpu);
+		if use_gpu {
+			params.gpu_device(gpu_device);
+		}
+
+		// Try loading with requested settings
+		let (ctx, gpu_fallback) = match WhisperContext::new_with_params(model_path, params) {
+			Ok(ctx) => (ctx, false),
+			Err(e) if use_gpu => {
+				// GPU failed, fallback to CPU
+				eprintln!("GPU loading failed: {}, falling back to CPU", e);
+				let mut cpu_params = WhisperContextParameters::default();
+				cpu_params.use_gpu(false);
+				let ctx = WhisperContext::new_with_params(model_path, cpu_params)
+					.context("Failed to load Whisper model with CPU fallback")?;
+				(ctx, true)
+			}
+			Err(e) => return Err(e).context("Failed to load Whisper model"),
+		};
 
 		let is_multilingual = ctx.is_multilingual();
 
-		Ok(Self {
-			ctx,
-			is_multilingual,
+		Ok(TranscriberLoadResult {
+			transcriber: Self {
+				ctx,
+				is_multilingual,
+			},
+			gpu_fallback,
 		})
 	}
 
