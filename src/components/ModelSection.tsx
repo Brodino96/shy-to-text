@@ -1,4 +1,3 @@
-import infoIcon from "../assets/info.svg"
 import type { Config, ModelInfo } from "../types"
 import { formatFileSize } from "../utils"
 
@@ -25,15 +24,7 @@ export function ModelSection({
 }: ModelSectionProps) {
 	return (
 		<div class="section">
-			<h2>
-				Model
-				<img
-					src={infoIcon}
-					alt="info"
-					class="info-icon"
-					title="The entire model will be loaded into RAM/VRAM. Choose a model size appropriate for your available memory."
-				/>
-			</h2>
+			<h2>Model</h2>
 			<div class="model-status">
 				<span class={`model-name ${!hasModel ? "not-loaded" : ""}`}>
 					{hasModel && config?.model_path

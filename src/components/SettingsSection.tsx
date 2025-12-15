@@ -1,8 +1,6 @@
-import { invoke } from "@tauri-apps/api/core"
-import { listen } from "@tauri-apps/api/event"
 import { sendNotification } from "@tauri-apps/plugin-notification"
 import { useCallback, useEffect, useState } from "preact/hooks"
-import type { Config, GpuDevice, LanguageInfo } from "../types"
+import type { Config, LanguageInfo } from "../types"
 
 interface SettingsSectionProps {
 	config: Config
@@ -106,27 +104,10 @@ export function SettingsSection({
 }: SettingsSectionProps) {
 	const [pendingConfig, setPendingConfig] = useState<Config>(config)
 	const [isRecording, setIsRecording] = useState(false)
-	const [gpuDevices, setGpuDevices] = useState<GpuDevice[]>([])
 
 	useEffect(() => {
 		setPendingConfig(config)
 	}, [config])
-
-	// Fetch available GPU devices on mount
-	useEffect(() => {
-		invoke<GpuDevice[]>("get_gpu_devices").then(setGpuDevices)
-	}, [])
-
-	// Listen for GPU fallback event and refetch config
-	useEffect(() => {
-		const unlisten = listen("gpu-fallback", async () => {
-			const newConfig = await invoke<Config>("get_config")
-			setPendingConfig(newConfig)
-		})
-		return () => {
-			unlisten.then((fn) => fn())
-		}
-	}, [])
 
 	const handleKeyDown = useCallback((e: KeyboardEvent) => {
 		e.preventDefault()
@@ -159,19 +140,12 @@ export function SettingsSection({
 		pendingConfig.hotkey !== config.hotkey ||
 		pendingConfig.language !== config.language ||
 		pendingConfig.auto_copy !== config.auto_copy ||
-		pendingConfig.show_notifications !== config.show_notifications ||
-		pendingConfig.use_gpu !== config.use_gpu ||
-		pendingConfig.gpu_device !== config.gpu_device
+		pendingConfig.show_notifications !== config.show_notifications
 
 	function getLanguageName(code: string): string {
 		if (code === "auto") return "Auto-detect"
 		const lang = supportedLanguages.find((l) => l.code === code)
 		return lang?.name ?? code
-	}
-
-	function getGpuDeviceLabel(id: number): string {
-		const device = gpuDevices.find((d) => d.id === id)
-		return device ? `${device.name} (${device.backend})` : ""
 	}
 
 	async function handleApply() {
@@ -193,20 +167,6 @@ export function SettingsSection({
 		if (pendingConfig.show_notifications !== config.show_notifications) {
 			changes.push(
 				`Notifications: ${config.show_notifications ? "On" : "Off"} -> ${pendingConfig.show_notifications ? "On" : "Off"}`
-			)
-		}
-		if (pendingConfig.use_gpu !== config.use_gpu) {
-			changes.push(
-				`GPU: ${config.use_gpu ? "On" : "Off"} -> ${pendingConfig.use_gpu ? "On" : "Off"}`
-			)
-		}
-		if (pendingConfig.gpu_device !== config.gpu_device) {
-			const oldDevice = gpuDevices.find((d) => d.id === config.gpu_device)
-			const newDevice = gpuDevices.find(
-				(d) => d.id === pendingConfig.gpu_device
-			)
-			changes.push(
-				`GPU Device: ${oldDevice?.name ?? config.gpu_device} -> ${newDevice?.name ?? pendingConfig.gpu_device}`
 			)
 		}
 
@@ -249,7 +209,6 @@ export function SettingsSection({
 					<select
 						id="language-select"
 						value={pendingConfig.language}
-						title={getLanguageName(pendingConfig.language)}
 						onChange={(e) =>
 							setPendingConfig({
 								...pendingConfig,
@@ -259,7 +218,7 @@ export function SettingsSection({
 						disabled={!hasModel}
 					>
 						{availableLanguages.map((lang) => (
-							<option key={lang.code} value={lang.code} title={lang.name}>
+							<option key={lang.code} value={lang.code}>
 								{lang.name}
 							</option>
 						))}
@@ -297,52 +256,6 @@ export function SettingsSection({
 						}
 					/>
 					<label for="show-notifications">Show notifications</label>
-				</div>
-
-				<div class="setting-row checkbox-row">
-					<input
-						type="checkbox"
-						id="use-gpu"
-						checked={pendingConfig.use_gpu}
-						disabled={gpuDevices.length === 0}
-						onChange={(e) =>
-							setPendingConfig({
-								...pendingConfig,
-								use_gpu: e.currentTarget.checked
-							})
-						}
-					/>
-					<label for="use-gpu">Use GPU acceleration</label>
-					{gpuDevices.length === 0 && (
-						<span class="setting-hint" style={{ color: "red" }}>
-							No GPU devices available
-						</span>
-					)}
-				</div>
-
-				<div class="setting-row">
-					<label for="gpu-device-select">GPU Device</label>
-					<select
-						id="gpu-device-select"
-						value={pendingConfig.gpu_device}
-						title={getGpuDeviceLabel(pendingConfig.gpu_device)}
-						disabled={!pendingConfig.use_gpu || gpuDevices.length === 0}
-						onChange={(e) =>
-							setPendingConfig({
-								...pendingConfig,
-								gpu_device: Number(e.currentTarget.value)
-							})
-						}
-					>
-						{gpuDevices.map((device) => {
-							const label = `${device.name} (${device.backend})`
-							return (
-								<option key={device.id} value={device.id} title={label}>
-									{label}
-								</option>
-							)
-						})}
-					</select>
 				</div>
 
 				<div class="setting-row">
