@@ -52,12 +52,14 @@ export async function handleSelectModel(
 export async function saveConfig(
 	config: Config,
 	setError: (value: string | null) => void
-) {
+): Promise<boolean> {
 	try {
 		await invoke("save_config", { config })
 		setError(null)
+		return true
 	} catch (e) {
 		setError(String(e))
+		return false
 	}
 }
 

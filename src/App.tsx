@@ -10,9 +10,7 @@ import {
 	handleLoadModel,
 	handleSelectModel,
 	openModelUrl,
-	saveConfig,
-	updateAndSaveConfig,
-	updateConfig
+	saveConfig
 } from "./handlers"
 import { useAppState } from "./hooks/useAppState"
 import type { Config } from "./types"
@@ -48,16 +46,12 @@ function App() {
 			loadInitialData
 		)
 	const openModelUrlWrapper = () => openModelUrl()
-	const saveConfigWrapper = (newConfig: Config) =>
-		saveConfig(newConfig, setError)
-	const updateConfigWrapper = <K extends keyof Config>(
-		key: K,
-		value: Config[K]
-	) => updateConfig(config, setConfig, key, value)
-	const updateAndSaveConfigWrapper = <K extends keyof Config>(
-		key: K,
-		value: Config[K]
-	) => updateAndSaveConfig(config, setConfig, setError, key, value)
+	const saveConfigWrapper = async (newConfig: Config) => {
+		const success = await saveConfig(newConfig, setError)
+		if (success) {
+			setConfig(newConfig)
+		}
+	}
 
 	return (
 		<div class="app">
@@ -88,8 +82,6 @@ function App() {
 					hasModel={hasModel}
 					isMultilingual={isMultilingual}
 					supportedLanguages={supportedLanguages}
-					updateConfig={updateConfigWrapper}
-					updateAndSaveConfig={updateAndSaveConfigWrapper}
 					saveConfig={saveConfigWrapper}
 				/>
 			)}
