@@ -10,6 +10,8 @@ pub struct Config {
 	pub model_path: Option<String>,
 	pub auto_copy: bool,
 	pub show_notifications: bool,
+	pub use_gpu: bool,
+	pub gpu_device: i32
 }
 
 impl Default for Config {
@@ -20,6 +22,8 @@ impl Default for Config {
 			model_path: None,
 			auto_copy: true,
 			show_notifications: true,
+			use_gpu: true,
+			gpu_device: 0
 		}
 	}
 }

@@ -6,6 +6,15 @@ export interface Config {
 	model_path: string | null
 	auto_copy: boolean
 	show_notifications: boolean
+	use_gpu: boolean
+	gpu_device: number
+}
+
+export interface GpuDevice {
+	id: number
+	name: string
+	device_type: string
+	backend: string
 }
 
 export interface ModelInfo {
