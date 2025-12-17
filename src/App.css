@@ -27,6 +27,7 @@
 	--status-transcribing-bg: #e3f2fd;
 	--status-transcribing-text: #1565c0;
 	--icon-color: black;
+	--icon-filter: invert(0);
 }
 
 :root[data-theme="dark"] {
@@ -48,6 +49,7 @@
 	--status-transcribing-bg: #1a2733;
 	--status-transcribing-text: #90caf9;
 	--icon-color: white;
+	--icon-filter: invert(1);
 }
 
 * {
@@ -201,6 +203,20 @@ body {
 	color: var(--muted-text);
 }
 
+.info-icon {
+	width: 16px;
+	height: 16px;
+	cursor: help;
+	vertical-align: middle;
+	margin-left: 4px;
+	opacity: 0.5;
+	filter: var(--icon-filter);
+}
+
+.info-icon:hover {
+	opacity: 0.8;
+}
+
 .transcription-box {
 	min-height: 100px;
 	max-height: 200px;
@@ -272,6 +288,20 @@ body {
 	font-size: 0.95rem;
 	background-color: var(--input-bg);
 	color: var(--text-color);
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+}
+
+.setting-row select {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.setting-row select option {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .setting-row input:focus,

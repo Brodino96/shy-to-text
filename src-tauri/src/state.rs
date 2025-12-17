@@ -25,10 +25,19 @@ unsafe impl Sync for AppStateManager {}
 
 impl AppStateManager {
 	pub fn new() -> Arc<Self> {
-		let config = Config::load().unwrap_or_default();
+		let mut config = Config::load().unwrap_or_default();
 
 		let transcriber = if let Some(ref model_path) = config.model_path {
-			Transcriber::new(model_path).ok()
+			match Transcriber::new(model_path, config.use_gpu, config.gpu_device) {
+				Ok(result) => {
+					if result.gpu_fallback {
+						config.use_gpu = false;
+						let _ = config.save();
+					}
+					Some(result.transcriber)
+				}
+				Err(_) => None,
+			}
 		} else {
 			None
 		};
@@ -60,15 +69,49 @@ impl AppStateManager {
 		Ok(())
 	}
 
-	pub fn load_model(&self, model_path: &str) -> anyhow::Result<()> {
-		let transcriber = Transcriber::new(model_path)?;
-		*self.transcriber.lock() = Some(transcriber);
+	/// Loads a model with the current GPU configuration.
+	/// Returns true if GPU fallback to CPU occurred.
+	pub fn load_model(&self, model_path: &str) -> anyhow::Result<bool> {
+		let (use_gpu, gpu_device) = {
+			let config = self.config.lock();
+			(config.use_gpu, config.gpu_device)
+		};
+
+		let result = Transcriber::new(model_path, use_gpu, gpu_device)?;
+		*self.transcriber.lock() = Some(result.transcriber);
 
 		let mut config = self.config.lock();
 		config.model_path = Some(model_path.to_string());
+		if result.gpu_fallback {
+			config.use_gpu = false;
+		}
 		config.save()?;
 
-		Ok(())
+		Ok(result.gpu_fallback)
+	}
+
+	/// Reloads the currently loaded model with updated GPU configuration.
+	/// Returns true if GPU fallback to CPU occurred.
+	pub fn reload_model(&self) -> anyhow::Result<bool> {
+		let (model_path, use_gpu, gpu_device) = {
+			let config = self.config.lock();
+			let model_path = config
+				.model_path
+				.clone()
+				.ok_or_else(|| anyhow::anyhow!("No model loaded"))?;
+			(model_path, config.use_gpu, config.gpu_device)
+		};
+
+		let result = Transcriber::new(&model_path, use_gpu, gpu_device)?;
+		*self.transcriber.lock() = Some(result.transcriber);
+
+		if result.gpu_fallback {
+			let mut config = self.config.lock();
+			config.use_gpu = false;
+			config.save()?;
+		}
+
+		Ok(result.gpu_fallback)
 	}
 
 	pub fn has_model(&self) -> bool {

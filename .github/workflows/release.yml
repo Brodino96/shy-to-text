@@ -74,8 +74,6 @@ jobs:
             artifacts/**/*.deb
             artifacts/**/*.AppImage
             artifacts/**/*.rpm
-            artifacts/**/*.msi
-            artifacts/**/*.exe
           generate_release_notes: true
 
   aur:
