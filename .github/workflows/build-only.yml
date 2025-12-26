@@ -35,6 +35,18 @@ jobs:
       - name: Install Vulkan SDK
         uses: jakoch/install-vulkan-sdk-action@v1
 
+      - name: Setup MSVC environment
+        if: matrix.platform == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Disable Vulkan shader generator
+        if: matrix.platform == 'windows-latest'
+        run: echo "GGML_VULKAN_SHADERS_GEN=OFF" >> $env:GITHUB_ENV
+
+      - name: Limit CMake parallelism
+        if: matrix.platform == 'windows-latest'
+        run: echo "CMAKE_BUILD_PARALLEL_LEVEL=1" >> $env:GITHUB_ENV
+
       - name: Install frontend dependencies
         run: bun install
 
