@@ -22,10 +22,10 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2.0.2
 
-      - name: install Rust stable
+      - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: install dependencies (ubuntu only)
+      - name: Install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
@@ -35,7 +35,7 @@ jobs:
       - name: Install Vulkan SDK
         uses: jakoch/install-vulkan-sdk-action@v1
 
-      - name: install frontend dependencies
+      - name: Install frontend dependencies
         run: bun install
 
       - uses: tauri-apps/tauri-action@v0.6.0
